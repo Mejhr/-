@@ -31,10 +31,13 @@ namespace 图片去白边
         private List<string> files;
 
         private DialogResult dr;
+
         /// <summary>
         /// 位置类
         /// </summary>
         private FileMessage message;
+
+        private ImagerDispose dispose;
 
         private bool isFileOpen;
         
@@ -74,6 +77,7 @@ namespace 图片去白边
             files = new List<string>();
             isFileOpen = false;
             lbText.Text = "";
+            dispose = new ImagerDispose();
         }
 
         /// <summary>
@@ -96,124 +100,7 @@ namespace 图片去白边
                 }
             }
             moRenOpenPath = message.initiaPoint;
-        }
-
-        /// <summary>
-        /// 裁剪图片（去掉百边）
-        /// </summary>
-        /// <param name="FilePath">图片路径</param>
-        public int RemoveWhiteEdge(string FilePath, string saveFilePath)
-        {
-            try
-            {
-                Bitmap bmp = new Bitmap(FilePath);
-                //上左右下
-                int top = 0, left = 0, right = bmp.Width, bottom = bmp.Height;
-
-                //寻找最上面的标线,从左(0)到右，从上(0)到下
-                for (int i = 0; i < bmp.Height; i++)//行
-                {
-                    bool find = false;
-                    for (int j = 0; j < 15/*bmp.Width*/; j++)//列
-                    {
-                        Color c = bmp.GetPixel(j, i);
-                        if (!IsWhite(c))
-                        {
-                            top = i;
-                            find = true;
-                            break;
-                        }
-                    }
-                    if (find)
-                        break;
-                }
-
-                //寻找最左边的标线，从上（top位）到下，从左到右
-                for (int i = left; i < 15/*bmp.Width*/; i++)//列
-                {
-                    bool find = false;
-                    for (int j = top; j < bmp.Height; j++)//行
-                    {
-                        Color c = bmp.GetPixel(i, j);
-                        if (!IsWhite(c))
-                        {
-                            left = i;
-                            find = true;
-                            break;
-                        }
-                    }
-                    if (find)
-                        break;
-                }
-
-                //寻找最下边标线，从下到上，从左到右
-                for (int i = bmp.Height - 1; i >= 0; i--)//行
-                {
-                    bool find = false;
-                    for (int j = left; j < 15/*bmp.Width*/; j++)//列
-                    {
-                        Color c = bmp.GetPixel(j, i);
-                        if (!IsWhite(c))
-                        {
-                            bottom = i;
-                            find = true;
-                            break;
-                        }
-                    }
-                    if (find)
-                        break;
-                }
-                //寻找最右边的标线，从上到下，从右往左
-                for (int i = bmp.Width - 1; i >= 0; i--)//列
-                {
-                    bool find = false;
-                    for (int j = 0; j <= bottom; j++)//行
-                    {
-                        Color c = bmp.GetPixel(i, j);
-                        if (!IsWhite(c))
-                        {
-                            right = i;
-                            find = true;
-                            break;
-                        }
-                    }
-                    if (find)
-                        break;
-                }
-                int number1 = right - left;
-                int number2 = bottom - top;
-                if (number1 > number2)
-                {
-                    number1 = number2;
-                }
-                else if (number1 < number2)
-                {
-                    number2 = number1;
-                }
-                if (number1 < 700)
-                {
-                    //throw new Exception("图片大小小于700像素");
-                    return -2;
-                }
-                //克隆位图对象的一部分。
-                Rectangle cloneRect = new Rectangle(left, top, number1, number2);
-                Bitmap cloneBitmap = bmp.Clone(cloneRect, bmp.PixelFormat);
-                cloneBitmap.Save(saveFilePath, ImageFormat.Jpeg);
-                bmp.Dispose();
-                edgeCount++;
-                return 1;
-            }
-            catch (Exception e)
-            {
-                return -1;
-            }
-        }
-
-        private bool IsWhite(Color color)
-        {
-            int tolerance = 24; // 容错范围
-            return color.R >= 255 - tolerance && color.G >= 255 - tolerance && color.B >= 255 - tolerance;
-        }
+        }        
 
         /// <summary>
         /// 执行图片去除白边
@@ -274,10 +161,11 @@ namespace 图片去白边
 
                 if (Path.GetFileName(filePath).IndexOf("主图") < 0)
                 {
-                   if( RemoveWhiteEdge(filePath, saveFilePath)==-1)
+                   if(dispose.RemoveWhiteEdge(filePath, saveFilePath,700,ImagerDispose.ImagerType.Square)==-1)
                     {
                         abnormal++;
                     }
+                    edgeCount++;
                 }
                 else
                 {

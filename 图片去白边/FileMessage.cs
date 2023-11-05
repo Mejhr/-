@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,5 +26,6 @@ namespace 图片去白边
             initiaPoint = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             setFileOpenPath = "";
         }
+
     }
 }
