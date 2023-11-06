@@ -40,7 +40,7 @@ namespace 图片去白边
         private ImagerDispose dispose;
 
         private bool isFileOpen;
-        
+
         /// <summary>
         /// 总个数
         /// </summary>
@@ -78,6 +78,7 @@ namespace 图片去白边
             isFileOpen = false;
             lbText.Text = "";
             dispose = new ImagerDispose();
+            cbRectangle.Checked = true;
         }
 
         /// <summary>
@@ -100,7 +101,7 @@ namespace 图片去白边
                 }
             }
             moRenOpenPath = message.initiaPoint;
-        }        
+        }
 
         /// <summary>
         /// 执行图片去除白边
@@ -137,6 +138,7 @@ namespace 图片去白边
             count = files.Count;
             edgeCount = 0;
             abnormal = 0;
+            ImagerDispose.ImagerType imager = cbRectangle.Checked ? ImagerDispose.ImagerType.Square : ImagerDispose.ImagerType.None;
             foreach (string filePath in files)
             {
                 string name = Path.GetFileName(filePath);
@@ -159,9 +161,9 @@ namespace 图片去白边
                     }
                 }
 
-                if (Path.GetFileName(filePath).IndexOf("主图") < 0)
+                if (Path.GetFileName(filePath).IndexOf("主图") < 0||checkBox.Checked)
                 {
-                   if(dispose.RemoveWhiteEdge(filePath, saveFilePath,700,ImagerDispose.ImagerType.Square)==-1)
+                    if (dispose.RemoveWhiteEdge(filePath, saveFilePath, 700, imager) == -1)
                     {
                         abnormal++;
                     }
@@ -178,7 +180,7 @@ namespace 图片去白边
             isFileOpen = false;
             dr = DialogResult.None;
 
-            SetText("已完成！！！" + Path.GetDirectoryName(tbFilePath.Text) + "   总数：" + count + "   处理个数：" + edgeCount+"  异常个数："+abnormal);
+            SetText("已完成！！！" + Path.GetDirectoryName(tbFilePath.Text) + "   总数：" + count + "   处理个数：" + edgeCount + "  异常个数：" + abnormal);
         }
 
         private void SetText(string str)
@@ -259,5 +261,14 @@ namespace 图片去白边
             }
         }
 
+        private void button3_Click(object sender, EventArgs e)
+        {
+            pictureBox1.Image = Image.FromFile(@"D:\zm\360下载位置\佳多美\财阀甜心蝴蝶结流苏耳钉女轻奢小众高级感设计耳饰女独特耳环耳夹-淘宝网\详情-08.jpg");
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            pictureBox2.Height += 1;
+        }
     }
 }
